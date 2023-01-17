@@ -1,4 +1,6 @@
-Please refer to [getting_started.md][link-getting_started] for examples usage.
+_Work in progress_
+
+Please refer to [getting_started_stm32.md][link-getting_started_stm32] for examples usage.
 
 
 
@@ -6,4 +8,4 @@ Please refer to [getting_started.md][link-getting_started] for examples usage.
 Link
 -->
 
-[link-getting_started]: https://github.com/Wiznet/RP2040-HAT-LWIP-C/blob/main/getting_started.md
+[link-getting_started_stm32]: https://github.com/muhammadrefa/STM32-W5x00-LWIP-C/blob/main/getting_started_stm32.md
