@@ -11,9 +11,6 @@
  */
 #include <stdio.h>
 
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-
 #include "wizchip_conf.h"
 #include "socket.h"
 #include "w5x00_gpio_irq.h"
@@ -47,10 +44,12 @@ void wizchip_gpio_interrupt_initialize(uint8_t socket, void (*callback)(void))
     ret_val = ctlwizchip(CW_SET_INTRMASK, (void *)&reg_val);
 
     callback_ptr = callback;
-    gpio_set_irq_enabled_with_callback(PIN_INT, GPIO_IRQ_EDGE_FALL, true, &wizchip_gpio_interrupt_callback);
+
+    // TODO
+    // gpio_set_irq_enabled_with_callback(PIN_INT, GPIO_IRQ_EDGE_FALL, true, &wizchip_gpio_interrupt_callback);
 }
 
-static void wizchip_gpio_interrupt_callback(uint gpio, uint32_t events)
+static void wizchip_gpio_interrupt_callback()
 {
     if (callback_ptr != NULL)
     {

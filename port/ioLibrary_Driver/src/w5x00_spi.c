@@ -21,7 +21,6 @@
  * Variables
  * ----------------------------------------------------------------------------------------------------
  */
-static critical_section_t g_wizchip_cri_sec;
 
 #ifdef USE_SPI_DMA
 static uint dma_tx;
@@ -37,25 +36,21 @@ static dma_channel_config dma_channel_config_rx;
  */
 static inline void wizchip_select(void)
 {
-    gpio_put(PIN_CS, 0);
+    HAL_GPIO_WritePin(W5X500_CS_PORT, W5X500_CS_PIN, 0);
 }
 
 static inline void wizchip_deselect(void)
 {
-    gpio_put(PIN_CS, 1);
+    HAL_GPIO_WritePin(W5X500_CS_PORT, W5X500_CS_PIN, 1);
 }
 
 void wizchip_reset()
 {
-    gpio_set_dir(PIN_RST, GPIO_OUT);
+    HAL_GPIO_WritePin(W5X500_RST_PORT, W5X500_RST_PIN, 0);
+    HAL_Delay(100);
 
-    gpio_put(PIN_RST, 0);
-    sleep_ms(100);
-
-    gpio_put(PIN_RST, 1);
-    sleep_ms(100);
-
-    bi_decl(bi_1pin_with_name(PIN_RST, "W5x00 RESET"));
+    HAL_GPIO_WritePin(W5X500_RST_PORT, W5X500_RST_PIN, 1);
+    HAL_Delay(100);
 }
 
 static uint8_t wizchip_read(void)
@@ -63,14 +58,14 @@ static uint8_t wizchip_read(void)
     uint8_t rx_data = 0;
     uint8_t tx_data = 0xFF;
 
-    spi_read_blocking(SPI_PORT, tx_data, &rx_data, 1);
+    HAL_SPI_Receive(W5X500_SPI_HANDLE, &rx_data, 1, HAL_MAX_DELAY);
 
     return rx_data;
 }
 
 static void wizchip_write(uint8_t tx_data)
 {
-    spi_write_blocking(SPI_PORT, &tx_data, 1);
+    HAL_SPI_Transmit(W5X500_SPI_HANDLE, &tx_data, 1, HAL_MAX_DELAY);
 }
 
 #ifdef USE_SPI_DMA
@@ -125,33 +120,17 @@ static void wizchip_write_burst(uint8_t *pBuf, uint16_t len)
 
 static void wizchip_critical_section_lock(void)
 {
-    critical_section_enter_blocking(&g_wizchip_cri_sec);
+    __disable_irq();
 }
 
 static void wizchip_critical_section_unlock(void)
 {
-    critical_section_exit(&g_wizchip_cri_sec);
+    __enable_irq();
 }
 
 void wizchip_spi_initialize(void)
 {
-    // this example will use SPI0 at 5MHz
-    spi_init(SPI_PORT, 5000 * 1000);
-
-    gpio_set_function(PIN_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
-
-    // make the SPI pins available to picotool
-    bi_decl(bi_3pins_with_func(PIN_MISO, PIN_MOSI, PIN_SCK, GPIO_FUNC_SPI));
-
-    // chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_init(PIN_CS);
-    gpio_set_dir(PIN_CS, GPIO_OUT);
-    gpio_put(PIN_CS, 1);
-
-    // make the SPI pins available to picotool
-    bi_decl(bi_1pin_with_name(PIN_CS, "W5x00 CHIP SELECT"));
+    // SPI initialization done in main.c (via STM32CubeMX)
 
 #ifdef USE_SPI_DMA
     dma_tx = dma_claim_unused_channel(true);
@@ -174,7 +153,6 @@ void wizchip_spi_initialize(void)
 
 void wizchip_cris_initialize(void)
 {
-    critical_section_init(&g_wizchip_cri_sec);
     reg_wizchip_cris_cbfunc(wizchip_critical_section_lock, wizchip_critical_section_unlock);
 }
 
@@ -202,7 +180,7 @@ void wizchip_initialize(void)
 
     if (ctlwizchip(CW_INIT_WIZCHIP, (void *)memsize) == -1)
     {
-        printf(" W5x00 initialized fail\n");
+        // printf(" W5x00 initialized fail\n");
 
         return;
     }
@@ -212,7 +190,7 @@ void wizchip_initialize(void)
     {
         if (ctlwizchip(CW_GET_PHYLINK, (void *)&temp) == -1)
         {
-            printf(" Unknown PHY link status\n");
+            // printf(" Unknown PHY link status\n");
 
             return;
         }
@@ -225,7 +203,7 @@ void wizchip_check(void)
     /* Read version register */
     if (getVER() != 0x51)
     {
-        printf(" ACCESS ERR : VERSION != 0x51, read value = 0x%02x\n", getVER());
+        // printf(" ACCESS ERR : VERSION != 0x51, read value = 0x%02x\n", getVER());
 
         while (1)
             ;
@@ -234,7 +212,7 @@ void wizchip_check(void)
     /* Read version register */
     if (getVERSIONR() != 0x04)
     {
-        printf(" ACCESS ERR : VERSION != 0x04, read value = 0x%02x\n", getVERSIONR());
+        // printf(" ACCESS ERR : VERSION != 0x04, read value = 0x%02x\n", getVERSIONR());
 
         while (1)
             ;
@@ -250,6 +228,7 @@ void network_initialize(wiz_NetInfo net_info)
 
 void print_network_information(wiz_NetInfo net_info)
 {
+    // TODO Print network information
     uint8_t tmp_str[8] = {
         0,
     };
@@ -259,19 +238,19 @@ void print_network_information(wiz_NetInfo net_info)
 
     if (net_info.dhcp == NETINFO_DHCP)
     {
-        printf("====================================================================================================\n");
-        printf(" %s network configuration : DHCP\n\n", (char *)tmp_str);
+        // printf("====================================================================================================\n");
+        // printf(" %s network configuration : DHCP\n\n", (char *)tmp_str);
     }
     else
     {
-        printf("====================================================================================================\n");
-        printf(" %s network configuration : static\n\n", (char *)tmp_str);
+        // printf("====================================================================================================\n");
+        // printf(" %s network configuration : static\n\n", (char *)tmp_str);
     }
 
-    printf(" MAC         : %02X:%02X:%02X:%02X:%02X:%02X\n", net_info.mac[0], net_info.mac[1], net_info.mac[2], net_info.mac[3], net_info.mac[4], net_info.mac[5]);
-    printf(" IP          : %d.%d.%d.%d\n", net_info.ip[0], net_info.ip[1], net_info.ip[2], net_info.ip[3]);
-    printf(" Subnet Mask : %d.%d.%d.%d\n", net_info.sn[0], net_info.sn[1], net_info.sn[2], net_info.sn[3]);
-    printf(" Gateway     : %d.%d.%d.%d\n", net_info.gw[0], net_info.gw[1], net_info.gw[2], net_info.gw[3]);
-    printf(" DNS         : %d.%d.%d.%d\n", net_info.dns[0], net_info.dns[1], net_info.dns[2], net_info.dns[3]);
-    printf("====================================================================================================\n\n");
+    // printf(" MAC         : %02X:%02X:%02X:%02X:%02X:%02X\n", net_info.mac[0], net_info.mac[1], net_info.mac[2], net_info.mac[3], net_info.mac[4], net_info.mac[5]);
+    // printf(" IP          : %d.%d.%d.%d\n", net_info.ip[0], net_info.ip[1], net_info.ip[2], net_info.ip[3]);
+    // printf(" Subnet Mask : %d.%d.%d.%d\n", net_info.sn[0], net_info.sn[1], net_info.sn[2], net_info.sn[3]);
+    // printf(" Gateway     : %d.%d.%d.%d\n", net_info.gw[0], net_info.gw[1], net_info.gw[2], net_info.gw[3]);
+    // printf(" DNS         : %d.%d.%d.%d\n", net_info.dns[0], net_info.dns[1], net_info.dns[2], net_info.dns[3]);
+    // printf("====================================================================================================\n\n");
 }

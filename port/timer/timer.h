@@ -7,6 +7,8 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#include <stdint.h>
+
 /**
  * ----------------------------------------------------------------------------------------------------
  * Macros
@@ -37,7 +39,7 @@ void wizchip_1ms_timer_initialize(void (*callback)(void));
  *
  *  \param t Information about a repeating timer
  */
-bool wizchip_1ms_timer_callback(struct repeating_timer *t);
+uint8_t wizchip_1ms_timer_callback();
 
 /* Delay */
 /*! \brief Wait for the given number of milliseconds before returning

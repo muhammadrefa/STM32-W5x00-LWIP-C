@@ -10,9 +10,7 @@
  * ----------------------------------------------------------------------------------------------------
  */
 #include <stdio.h>
-
-#include "pico/stdlib.h"
-
+#include <stdint.h>
 #include "timer.h"
 
 /**
@@ -21,7 +19,6 @@
  * ----------------------------------------------------------------------------------------------------
  */
 /* Timer */
-static struct repeating_timer g_timer;
 void (*callback_ptr)(void);
 
 /**
@@ -32,11 +29,12 @@ void (*callback_ptr)(void);
 /* Timer */
 void wizchip_1ms_timer_initialize(void (*callback)(void))
 {
+    // 1 ms timer initialization done in main.c (via STM32CubeMX)
+    // Call the callback inside stm32xx_it.c
     callback_ptr = callback;
-    add_repeating_timer_us(-1000, wizchip_1ms_timer_callback, NULL, &g_timer);
 }
 
-bool wizchip_1ms_timer_callback(struct repeating_timer *t)
+uint8_t wizchip_1ms_timer_callback()
 {
     if (callback_ptr != NULL)
     {
@@ -47,5 +45,5 @@ bool wizchip_1ms_timer_callback(struct repeating_timer *t)
 /* Delay */
 void wizchip_delay_ms(uint32_t ms)
 {
-    sleep_ms(ms);
+    HAL_Delay(ms);
 }

@@ -7,19 +7,20 @@
 #ifndef _W5X00_SPI_H_
 #define _W5X00_SPI_H_
 
+#include "main.h"
+
 /**
  * ----------------------------------------------------------------------------------------------------
  * Macros
  * ----------------------------------------------------------------------------------------------------
  */
 /* SPI */
-#define SPI_PORT spi0
+#define W5X500_SPI_HANDLE &hspi1
 
-#define PIN_SCK 18
-#define PIN_MOSI 19
-#define PIN_MISO 16
-#define PIN_CS 17
-#define PIN_RST 20
+#define W5X500_CS_PORT  W5500_CS_GPIO_Port
+#define W5X500_CS_PIN   W5500_CS_Pin
+#define W5X500_RST_PORT W5500_RST_GPIO_Port
+#define W5X500_RST_PIN  W5500_RST_Pin
 
 /* Use SPI DMA */
 //#define USE_SPI_DMA // if you want to use SPI DMA, uncomment.
