@@ -418,3 +418,24 @@ void sys_arch_unprotect(sys_prot_t pval)
 }
 
 #endif /* !NO_SYS */
+
+#if NO_SYS
+
+#include "main.h"
+
+uint32_t sys_now()
+{
+    return HAL_GetTick();
+}
+
+sys_prot_t sys_arch_protect(void)
+{
+    __disable_irq();
+}
+
+void sys_arch_unprotect(sys_prot_t pval)
+{
+    __enable_irq();
+}
+
+#endif /* NO_SYS */
