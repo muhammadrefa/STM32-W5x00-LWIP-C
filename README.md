@@ -8,4 +8,4 @@ Please refer to [getting_started_stm32.md][link-getting_started_stm32] for examp
 Link
 -->
 
-[link-getting_started_stm32]: https://github.com/muhammadrefa/STM32-W5x00-LWIP-C/blob/main/getting_started_stm32.md
+[link-getting_started_stm32]: https://github.com/muhammadrefa/STM32-W5x00-LWIP-C/blob/main_stm32/getting_started_stm32.md
