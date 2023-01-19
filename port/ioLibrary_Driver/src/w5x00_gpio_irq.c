@@ -46,10 +46,11 @@ void wizchip_gpio_interrupt_initialize(uint8_t socket, void (*callback)(void))
     callback_ptr = callback;
 
     // TODO
+    // Call wizchip_gpio_interrupt_callback() from stm32fxx_it.c
     // gpio_set_irq_enabled_with_callback(PIN_INT, GPIO_IRQ_EDGE_FALL, true, &wizchip_gpio_interrupt_callback);
 }
 
-static void wizchip_gpio_interrupt_callback()
+void wizchip_gpio_interrupt_callback()
 {
     if (callback_ptr != NULL)
     {

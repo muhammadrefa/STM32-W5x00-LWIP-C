@@ -35,10 +35,7 @@ void wizchip_gpio_interrupt_initialize(uint8_t socket, void (*callback)(void));
  *  \ingroup w5x00_gpio_irq
  *
  *  GPIO interrupt callback function.
- *
- *  \param gpio Which GPIO caused this interrupt
- *  \param events Which events caused this interrupt. See \ref gpio_set_irq_enabled for details.
  */
-static void wizchip_gpio_interrupt_callback();
+void wizchip_gpio_interrupt_callback();
 
 #endif /* _W5X00_GPIO_IRQ_H_ */
